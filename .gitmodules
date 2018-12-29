@@ -1,0 +1,6 @@
+[submodule "ncappzoo"]
+	path = ncappzoo
+	url = https://github.com/movidius/ncappzoo.git
+[submodule "ncsdk"]
+	path = ncsdk
+	url = https://github.com/movidius/ncsdk.git
