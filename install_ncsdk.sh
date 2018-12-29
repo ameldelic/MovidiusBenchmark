@@ -1,0 +1,2 @@
+cd ncsdk
+make install

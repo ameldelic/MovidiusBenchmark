@@ -1,0 +1,2 @@
+cd ncappzoo
+make all
