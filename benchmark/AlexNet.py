@@ -3,15 +3,14 @@
 # Copyright(c) 2017 Intel Corporation.
 # License: MIT See LICENSE file in root directory.
 
-import sys
 import numpy
 import cv2
-import time
-import csv
+
 import os
 import sys
 import re
-from os import system
+from enter_benchmark import enter_benchmark
+
 
 sys.path.insert(0, "ncapi2_shim")
 import mvnc_simple_api as mvnc
@@ -52,7 +51,7 @@ def infer(imgname):
     device.OpenDevice()
 
     filefolder = os.path.dirname(os.path.realpath(__file__))
-    network_blob = filefolder + '/graph'
+    network_blob = '../MovidiusModels/AlexNet.graph'
 
     # Load blob
     with open(network_blob, mode='rb') as f:
@@ -63,41 +62,53 @@ def infer(imgname):
     # ***************************************************************
     # Load the image
     # ***************************************************************
-    ilsvrc_mean = numpy.load(EXAMPLES_BASE_DIR + 'data/ilsvrc12/ilsvrc_2012_mean.npy').mean(1).mean(
-        1)  # loading the mean file
+
+    ilsvrc_mean = numpy.load(EXAMPLES_BASE_DIR + 'data/ilsvrc12/ilsvrc_2012_mean.npy').mean(1).mean(1)  # loading the mean file
+
     img = cv2.imread(imgname)
     img = cv2.resize(img, dim)
     img = img.astype(numpy.float32)
+
     img[:, :, 0] = (img[:, :, 0] - ilsvrc_mean[0])
     img[:, :, 1] = (img[:, :, 1] - ilsvrc_mean[1])
     img[:, :, 2] = (img[:, :, 2] - ilsvrc_mean[2])
+
+    t1 = cv2.getTickCount()
 
     # ***************************************************************
     # Send the image to the NCS
     # ***************************************************************
     graph.LoadTensor(img.astype(numpy.float16), 'user object')
 
+
     # ***************************************************************
     # Get the result from the NCS
     # ***************************************************************
     output, userobj = graph.GetResult()
 
+    t2 = cv2.getTickCount()
+
+    time = ((t2 - t1) / cv2.getTickFrequency()) * 1000
+
     # ***************************************************************
     # Print the results of the inference form the NCS
     # ***************************************************************
     order = output.argsort()[::-1][:6]
-    print('\n------- predictions --------')
+    print('\n------- predictions time {} ms--------'.format(time))
     result = ""
+
     for i in range(0, 5):
         # print ('prediction ' + str(i) + ' (probability ' + str(output[order[i]]*100) + '%) is ' + labels[order[i]] + '  label index is: ' + str(order[i]) )
         label = re.search("n[0-9]+\s([^,]+)", labels[order[i]]).groups(1)[0]
-        result = result + "\n%20s %0.2f %%" % (label, output[order[i]] * 100)
+        result = result + "\n%20s %0.2f %% %d" % (label, output[order[i]] * 100, order[i])
 
     # ***************************************************************
     # Clean up the graph and the device
     # ***************************************************************
     graph.DeallocateGraph()
     device.CloseDevice()
+
+    enter_benchmark('MOVIUDUS', 'AlexNet', 'Caffe', 'VPU', time)
 
     return result, imgname
 
