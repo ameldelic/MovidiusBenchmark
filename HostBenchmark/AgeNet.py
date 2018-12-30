@@ -2,7 +2,8 @@ import os
 
 os.environ['GLOG_minloglevel'] = '3'  # suprress Caffe verbose prints
 
-import cv2
+import time
+# import cv2
 import matplotlib.pyplot as plt
 import caffe
 import argparse
@@ -106,11 +107,11 @@ print("Accuracy {}".format(miss_count / data_count))
 
 quit()
 
-t1 = cv2.getTickCount()
+t1 = time.time() # cv2.getTickCount()
 prediction = age_net.predict([input_image])
 
-t2 = cv2.getTickCount()
-time = ((t2 - t1) / cv2.getTickFrequency()) * 1000
+t2 = time.time()#cv2.getTickCount()
+time = (t2 - t1) * 1000
 
 print("Prediction time {} ms".format(time))
 print('predicted age:', age_list[prediction[0].argmax()])
