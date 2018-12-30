@@ -4,7 +4,7 @@ os.environ['GLOG_minloglevel'] = '3'  # suprress Caffe verbose prints
 
 import time
 # import cv2
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import caffe
 import argparse
 import csv
@@ -39,9 +39,6 @@ if args.mode == "GPU":
 age_list=['(0, 2)', '(4, 6)', '(8, 12)', '(15, 20)', '(25, 32)', '(38, 43)', '(48, 53)', '(60, 100)']
 gender_list=['Male', 'Female']
 
-plt.rcParams['figure.figsize'] = (10, 10)
-plt.rcParams['image.interpolation'] = 'nearest'
-plt.rcParams['image.cmap'] = 'gray'
 
 mean_filename = './AgeGenderDeepLearning/models/mean.binaryproto'
 
